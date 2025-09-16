@@ -1,0 +1,97 @@
+Node + MySQL Cheat Sheet
+
+1. Install MySQL Server
+
+---
+
+1. Download MySQL Installer (Windows): [https://dev.mysql.com/downloads/mysql/](https://dev.mysql.com/downloads/mysql/)
+
+2. Run as Administrator → choose Developer Default.
+
+3. Set root password.
+
+4. Configure firewall → allow ports 3306 and 33060.
+
+5. Complete installation → server runs as MySQL94.
+
+6. Add MySQL to PATH (optional)
+
+---
+
+Add to Windows PATH:
+C:\Program Files\MySQL\MySQL Server 9.4\bin
+
+3. Log in to MySQL
+
+---
+
+"C:\Program Files\MySQL\MySQL Server 9.4\bin\mysql.exe" -u root -p
+
+* Enter root password.
+* Prompt: mysql>
+
+4. Create database, table, and test data
+
+---
+
+CREATE DATABASE test\_db;
+USE test\_db;
+CREATE TABLE users (
+id INT AUTO\_INCREMENT PRIMARY KEY,
+name VARCHAR(50)
+);
+INSERT INTO users (name) VALUES ('Holly');
+SELECT \* FROM users;
+
+5. Create a separate MySQL user for Node
+
+---
+
+CREATE USER 'node\_user'@'localhost' IDENTIFIED BY 'YOUR\_PASSWORD';
+GRANT ALL PRIVILEGES ON test\_db.\* TO 'node\_user'@'localhost';
+FLUSH PRIVILEGES;
+
+6. Install Node MySQL module
+
+---
+
+npm install --save mysql2
+
+7. Create a test Node.js file (test\_mysql.js)
+
+---
+
+const mysql = require("mysql2");
+
+const pool = mysql.createPool({
+connectionLimit: 10,
+host: "localhost",
+user: "node\_user",
+password: "YOUR\_PASSWORD",
+database: "test\_db",
+});
+
+pool.query("SELECT \* FROM users LIMIT 10", (err, rows) => {
+if (err) {
+console.log("Error occurred during the connection:", err);
+return;
+}
+console.log(rows\[0]);
+});
+
+8. Run Node script
+
+---
+
+node test\_mysql.js
+
+* Output should show table rows, e.g., { id: 1, name: 'Holly' }
+
+9. Notes / Tips
+
+---
+
+* Ensure MySQL server is running before executing Node scripts.
+* Use node\_user for apps; avoid root for security.
+* Use FLUSH PRIVILEGES; after changing permissions.
+* Optional: Use MySQL Workbench GUI to view databases visually.
